@@ -19,10 +19,14 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 import static android.R.id.message;
 
 public class MainActivity extends AppCompatActivity implements MainScreenContract.View {
 
+    @BindView(R.id.main_list_posts)
     ListView mPostListView;
 
     private ArrayList<String> mList;
@@ -36,8 +40,9 @@ public class MainActivity extends AppCompatActivity implements MainScreenContrac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mPostListView = (ListView) findViewById(R.id.main_list_posts);
         mList = new ArrayList<>();
+
+        ButterKnife.bind(this);
 
         DaggerMainScreenComponent.builder()
                 .mainScreenModule(new MainScreenModule(this))
