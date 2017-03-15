@@ -2,6 +2,9 @@ package com.leadit.dagger2mvp.mainscreen;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -10,6 +13,7 @@ import android.widget.Toast;
 import com.leadit.dagger2mvp.BaseApplication;
 import com.leadit.dagger2mvp.R;
 
+import com.leadit.dagger2mvp.adapter.PostsRecyclerAdapter;
 import com.leadit.dagger2mvp.data.component.DaggerMainScreenComponent;
 import com.leadit.dagger2mvp.data.module.MainScreenModule;
 import com.leadit.dagger2mvp.entities.Post;
@@ -27,10 +31,10 @@ import static android.R.id.message;
 public class MainActivity extends AppCompatActivity implements MainScreenContract.View {
 
     @BindView(R.id.main_list_posts)
-    ListView mPostListView;
+    RecyclerView mPostListView;
 
-    private ArrayList<String> mList;
-    private ArrayAdapter<String> mAdapter;
+    private List<Post> mList;
+    private PostsRecyclerAdapter mAdapter;
 
     @Inject
     MainScreenPresenter mPresenter;
@@ -40,9 +44,17 @@ public class MainActivity extends AppCompatActivity implements MainScreenContrac
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ButterKnife.bind(this);
+
+        //configuring recycler
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mPostListView.setHasFixedSize(true);
+        mPostListView.setLayoutManager(layoutManager);
+        mPostListView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), layoutManager.getOrientation()));
+
+
         mList = new ArrayList<>();
 
-        ButterKnife.bind(this);
 
         DaggerMainScreenComponent.builder()
                 .mainScreenModule(new MainScreenModule(this))
@@ -61,10 +73,10 @@ public class MainActivity extends AppCompatActivity implements MainScreenContrac
     @Override
     public void showPosts(List<Post> posts) {
         for (int i = 0; i < posts.size(); i++) {
-            mList.add(posts.get(i).getTitle());
+            mList.add(posts.get(i));
         }
         //Create the array adapter and set it to list view
-        mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mList);
+        mAdapter = new PostsRecyclerAdapter(mList);
         mPostListView.post(new Runnable() {
             @Override
             public void run() {
